@@ -75,10 +75,34 @@ app.get('/students', checkLogin, (req, res) => {
         }
     });
 });
+// create get request to fetch all data
+app.get('/api', checkLogin, (req, res) => {
+    mysqlConnection.query('SELECT * FROM blogs', (err, rows, fields) => {
+        if (!err) {
+            res.send(rows);
+        } else {
+            console.log(err);
+        }
+    });
+});
 // Router to GET specific students detail from the MySQL database
 app.get('/students/:id', checkLogin, (req, res) => {
     mysqlConnection.query(
         'SELECT * FROM studentdetails WHERE student_id = ?',
+        [req.params.id],
+        (err, rows, fields) => {
+            if (!err) {
+                res.send(rows);
+            } else {
+                console.log(err);
+            }
+        }
+    );
+});
+// Router to GET specific  detail from the MySQL database
+app.get('/api/:id', checkLogin, (req, res) => {
+    mysqlConnection.query(
+        'SELECT * FROM blogs WHERE blog_id = ?',
         [req.params.id],
         (err, rows, fields) => {
             if (!err) {
@@ -109,6 +133,25 @@ app.delete('/students', checkLogin, (req, res) => {
         },
     );
 });
+//// Router to DELETE a  detail
+app.delete('/api', checkLogin, (req, res) => {
+    const blog_id = req.body.blog_id;
+    if (!blog_id) {
+        return res.status(400).send({ error: true, message: 'Please provide blog_id' });
+    }
+    mysqlConnection.query(
+        'DELETE FROM blogs WHERE blog_id = ?',
+        [blog_id],
+        (error, results, fields) => {
+            if (error) throw error;
+            return res.send({
+                error: false,
+                data: results,
+                message: 'blog record has been deleted successfully.',
+            });
+        },
+    );
+});
 // insert a new student
 app.post('/students', checkLogin, (req, res) => {
     const student = req.body.students;
@@ -131,6 +174,33 @@ app.post('/students', checkLogin, (req, res) => {
                 error: false,
                 data: results,
                 message: 'New user has been created successfully.',
+            });
+        },
+    );
+});
+
+// insert a new blog
+app.post('/api', checkLogin, (req, res) => {
+    const blog = req.body.blogs;
+    // const { id } = req.body;
+    // const email = req.body.gmail;
+    // const courseid = req.body.courseID;
+    if (!blog) {
+        return res.status(400).send({ error: true, message: 'Please provide blog' });
+    }
+    mysqlConnection.query(
+        'INSERT INTO blogs SET ? ',
+        { title: title },
+        // { student_id: id },
+        // { student_email: email },
+        // { course_id: courseid },
+
+        (error, results, fields) => {
+            if (error) throw error;
+            return res.send({
+                error: false,
+                data: results,
+                message: 'New blog  has been created successfully.',
             });
         },
     );

@@ -207,7 +207,7 @@ app.post('/api', checkLogin, (req, res) => {
 });
 
 // update configuaration
-//  Update user with id
+//  Update students with id
 app.put('/students', checkLogin, (req, res) => {
     const student_id = req.body.Student_id;
     const student_name = req.body.Student_name;
@@ -219,6 +219,28 @@ app.put('/students', checkLogin, (req, res) => {
     mysqlConnection.query(
         'UPDATE studentdetails SET student_name = ? WHERE student_id = ?',
         [student_name, student_id],
+        (error, results, fields) => {
+            if (error) throw error;
+            return res.send({
+                error: false,
+                data: results,
+                message: 'student record has been updated successfully.',
+            });
+        },
+    );
+});
+//  Update blog with id
+app.put('/api', checkLogin, (req, res) => {
+    const blog_id = req.body.blog_id;
+    const title = req.body.title;
+    if (!blog_id|| title) {
+        return res
+            .status(400)
+            .send({ error: true, message: 'Please provide blog_id and title' });
+    }
+    mysqlConnection.query(
+        'UPDATE blogs SET title =? WHERE blog_id = ?',
+        [title, blog_id],
         (error, results, fields) => {
             if (error) throw error;
             return res.send({
